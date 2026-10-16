@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/decoder.dir/src/decoder_main.cpp.o -o decoder  libbitrate_core.a

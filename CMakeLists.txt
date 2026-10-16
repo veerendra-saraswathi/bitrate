@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(bitrate_core
     src/encoder.cpp
     src/decoder.cpp
+    src/wavelet.cpp
+    src/bitstream.cpp
 )
 
 target_include_directories(bitrate_core PUBLIC include)
