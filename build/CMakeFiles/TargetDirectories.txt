@@ -1,6 +1,0 @@
-/Users/veerendrabidarkota/bitrate/build/CMakeFiles/bitrate_core.dir
-/Users/veerendrabidarkota/bitrate/build/CMakeFiles/encoder.dir
-/Users/veerendrabidarkota/bitrate/build/CMakeFiles/decoder.dir
-/Users/veerendrabidarkota/bitrate/build/CMakeFiles/test_roundtrip.dir
-/Users/veerendrabidarkota/bitrate/build/CMakeFiles/edit_cache.dir
-/Users/veerendrabidarkota/bitrate/build/CMakeFiles/rebuild_cache.dir

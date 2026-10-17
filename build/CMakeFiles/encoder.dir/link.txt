@@ -1,1 +1,0 @@
-/usr/bin/c++ -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/encoder.dir/src/encoder_main.cpp.o -o encoder  libbitrate_core.a
