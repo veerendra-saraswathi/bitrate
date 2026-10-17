@@ -5,6 +5,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/bitrate_core.dir/src/decoder.cpp.o.d"
   "CMakeFiles/bitrate_core.dir/src/encoder.cpp.o"
   "CMakeFiles/bitrate_core.dir/src/encoder.cpp.o.d"
+  "CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o"
+  "CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o.d"
   "CMakeFiles/bitrate_core.dir/src/wavelet.cpp.o"
   "CMakeFiles/bitrate_core.dir/src/wavelet.cpp.o.d"
   "libbitrate_core.a"

@@ -128,12 +128,27 @@ CMakeFiles/bitrate_core.dir/src/bitstream.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/bitrate_core.dir/src/bitstream.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/veerendrabidarkota/bitrate/src/bitstream.cpp -o CMakeFiles/bitrate_core.dir/src/bitstream.cpp.s
 
+CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o: CMakeFiles/bitrate_core.dir/flags.make
+CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o: /Users/veerendrabidarkota/bitrate/src/udp_framing.cpp
+CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o: CMakeFiles/bitrate_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o -MF CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o.d -o CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o -c /Users/veerendrabidarkota/bitrate/src/udp_framing.cpp
+
+CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/veerendrabidarkota/bitrate/src/udp_framing.cpp > CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.i
+
+CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/veerendrabidarkota/bitrate/src/udp_framing.cpp -o CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.s
+
 # Object files for target bitrate_core
 bitrate_core_OBJECTS = \
 "CMakeFiles/bitrate_core.dir/src/encoder.cpp.o" \
 "CMakeFiles/bitrate_core.dir/src/decoder.cpp.o" \
 "CMakeFiles/bitrate_core.dir/src/wavelet.cpp.o" \
-"CMakeFiles/bitrate_core.dir/src/bitstream.cpp.o"
+"CMakeFiles/bitrate_core.dir/src/bitstream.cpp.o" \
+"CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o"
 
 # External object files for target bitrate_core
 bitrate_core_EXTERNAL_OBJECTS =
@@ -142,9 +157,10 @@ libbitrate_core.a: CMakeFiles/bitrate_core.dir/src/encoder.cpp.o
 libbitrate_core.a: CMakeFiles/bitrate_core.dir/src/decoder.cpp.o
 libbitrate_core.a: CMakeFiles/bitrate_core.dir/src/wavelet.cpp.o
 libbitrate_core.a: CMakeFiles/bitrate_core.dir/src/bitstream.cpp.o
+libbitrate_core.a: CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o
 libbitrate_core.a: CMakeFiles/bitrate_core.dir/build.make
 libbitrate_core.a: CMakeFiles/bitrate_core.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX static library libbitrate_core.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX static library libbitrate_core.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/bitrate_core.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/bitrate_core.dir/link.txt --verbose=$(VERBOSE)
 

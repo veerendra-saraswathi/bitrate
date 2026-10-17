@@ -11,6 +11,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/veerendrabidarkota/bitrate/src/bitstream.cpp" "CMakeFiles/bitrate_core.dir/src/bitstream.cpp.o" "gcc" "CMakeFiles/bitrate_core.dir/src/bitstream.cpp.o.d"
   "/Users/veerendrabidarkota/bitrate/src/decoder.cpp" "CMakeFiles/bitrate_core.dir/src/decoder.cpp.o" "gcc" "CMakeFiles/bitrate_core.dir/src/decoder.cpp.o.d"
   "/Users/veerendrabidarkota/bitrate/src/encoder.cpp" "CMakeFiles/bitrate_core.dir/src/encoder.cpp.o" "gcc" "CMakeFiles/bitrate_core.dir/src/encoder.cpp.o.d"
+  "/Users/veerendrabidarkota/bitrate/src/udp_framing.cpp" "CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o" "gcc" "CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o.d"
   "/Users/veerendrabidarkota/bitrate/src/wavelet.cpp" "CMakeFiles/bitrate_core.dir/src/wavelet.cpp.o" "gcc" "CMakeFiles/bitrate_core.dir/src/wavelet.cpp.o.d"
   )
 

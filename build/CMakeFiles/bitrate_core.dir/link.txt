@@ -1,2 +1,2 @@
-/usr/bin/ar qc libbitrate_core.a CMakeFiles/bitrate_core.dir/src/encoder.cpp.o CMakeFiles/bitrate_core.dir/src/decoder.cpp.o CMakeFiles/bitrate_core.dir/src/wavelet.cpp.o CMakeFiles/bitrate_core.dir/src/bitstream.cpp.o
+/usr/bin/ar qc libbitrate_core.a CMakeFiles/bitrate_core.dir/src/encoder.cpp.o CMakeFiles/bitrate_core.dir/src/decoder.cpp.o CMakeFiles/bitrate_core.dir/src/wavelet.cpp.o CMakeFiles/bitrate_core.dir/src/bitstream.cpp.o CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o
 /usr/bin/ranlib libbitrate_core.a

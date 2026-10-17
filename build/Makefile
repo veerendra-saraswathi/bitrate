@@ -288,6 +288,30 @@ src/encoder_main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/encoder.dir/build.make CMakeFiles/encoder.dir/src/encoder_main.cpp.s
 .PHONY : src/encoder_main.cpp.s
 
+src/udp_framing.o: src/udp_framing.cpp.o
+.PHONY : src/udp_framing.o
+
+# target to build an object file
+src/udp_framing.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bitrate_core.dir/build.make CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.o
+.PHONY : src/udp_framing.cpp.o
+
+src/udp_framing.i: src/udp_framing.cpp.i
+.PHONY : src/udp_framing.i
+
+# target to preprocess a source file
+src/udp_framing.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bitrate_core.dir/build.make CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.i
+.PHONY : src/udp_framing.cpp.i
+
+src/udp_framing.s: src/udp_framing.cpp.s
+.PHONY : src/udp_framing.s
+
+# target to generate assembly for a file
+src/udp_framing.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bitrate_core.dir/build.make CMakeFiles/bitrate_core.dir/src/udp_framing.cpp.s
+.PHONY : src/udp_framing.cpp.s
+
 src/wavelet.o: src/wavelet.cpp.o
 .PHONY : src/wavelet.o
 
@@ -363,6 +387,9 @@ help:
 	@echo "... src/encoder_main.o"
 	@echo "... src/encoder_main.i"
 	@echo "... src/encoder_main.s"
+	@echo "... src/udp_framing.o"
+	@echo "... src/udp_framing.i"
+	@echo "... src/udp_framing.s"
 	@echo "... src/wavelet.o"
 	@echo "... src/wavelet.i"
 	@echo "... src/wavelet.s"

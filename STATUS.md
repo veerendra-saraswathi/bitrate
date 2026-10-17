@@ -1,38 +1,31 @@
-# Bitrate POC – Status (17 Oct 2026)
+# Bitrate MVP v0.1.0 – Frozen Baseline (18 Oct 2026)
 
-## What works
-- Pure C/C++ encoder + decoder (zero external runtime libraries)
+## Implemented
+- Pure C/C++17 encoder + decoder (zero external runtime libraries)
 - Tile-based (64×64) reversible 5/3 integer wavelet
-- Uniform quantisation (QP knob)
-- Zero-run + compact residual entropy coder
-- Compact metadata header (magic, dimensions, bit-depth, QP, tile size)
-- File-based round-trip
-- Perfect reconstruction at qp=1 on real KAIST thermal and visible frames
-- Measured encode latency on MacBook
+- Uniform quantisation (QP)
+- Zero-run + compact residual entropy
+- 8-bit and 16-bit mono
+- 3-channel colour (independent planes)
+- Compact metadata header
+- UDP framing + loopback reassembly
+- Multi-threaded tile encode
+- Perfect reconstruction at qp=1 (mono 8/16-bit + colour)
+- Real KAIST thermal + visible tested
 
-## Results on KAIST preview (640×512, 8-bit grayscale)
+## Measured results (MacBook)
+| Frame              | QP | Channels | Size out   | Time   | UDP packets |
+|--------------------|----|----------|------------|--------|-------------|
+| KAIST 640×512 thermal | 1 | 1     | 295 KB    | ~20 ms | 211         |
+| Synthetic 1920×1200  | 1 | 1     | 6.41 MB   | ~290 ms| 4581        |
+| Synthetic RGB 640×512| 1 | 3     | ~2.74 MB  | ~208 ms| 1955        |
 
-| Modality | QP | Encoded size | vs raw (327680 B) | Max error | Encode time |
-|----------|----|--------------|-------------------|-----------|-------------|
-| Thermal  | 1  | 294854 B    | 1.11×            | 0         | 32.2 ms    |
-| Thermal  | 4  | 149296 B    | 2.19×            | 7         | 26.7 ms    |
-| Visible  | 1  | 587599 B    | 0.56× (expands)  | 0         | 57.0 ms    |
-| Visible  | 4  | 222535 B    | 1.47×            | 10        | 31.2 ms    |
+16-bit synthetic: 0 mismatches.
 
-## Next steps (priority order)
-1. Stronger entropy coding so visible also compresses at qp=1
-2. 10/12/14/16-bit path
-3. Colour (3-channel) support
-4. Ethernet/UDP framing
-5. Jetson Xavier NX / Orin Nano build + latency measurement
-6. Windows decoder binary
-7. Adaptive rate control driven by channel bandwidth
-8. Formal ≤2-frame latency test harness
-
-## Build & run
+## Build & test
 ```bash
 mkdir build && cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j
-./encoder ../data/kaist_thermal.raw 640 512 1
-./decoder encoded.bin ../data/kaist_thermal.raw
+./encoder ../data/kaist_thermal.raw 640 512 1 8 1
+./test_roundtrip

@@ -837,8 +837,11 @@ CMakeFiles/encoder.dir/src/encoder_main.cpp.o: /Users/veerendrabidarkota/bitrate
   /Library/Developer/CommandLineTools/usr/lib/clang/21/include/stddef.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/21/include/stdint.h \
   /Users/veerendrabidarkota/bitrate/include/bitstream.h \
+  /Users/veerendrabidarkota/bitrate/include/udp_framing.h \
   /Users/veerendrabidarkota/bitrate/include/wavelet.h
 
+
+/Users/veerendrabidarkota/bitrate/include/udp_framing.h:
 
 /Users/veerendrabidarkota/bitrate/include/bitstream.h:
 

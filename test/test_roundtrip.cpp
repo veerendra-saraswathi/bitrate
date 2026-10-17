@@ -3,10 +3,12 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
+#include <cstdint>
 
-// Forward declarations
-std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
-                                  int width, int height, int qp);
+// Match the current signature (channels has a default, but the symbol is 6-arg)
+std::vector<uint8_t> encode_frame(const std::vector<uint16_t>& pixels,
+                                  int width, int height, int qp, int bit_depth,
+                                  int channels);
 std::vector<uint8_t> decode_frame(const std::vector<uint8_t>& bitstream);
 
 int main() {
@@ -23,17 +25,17 @@ int main() {
 
     std::cout << "5/3 wavelet round-trip OK\n";
 
-    // Full encode → decode round-trip
-    std::vector<uint8_t> img(64 * 64);
+    // Full encode → decode round-trip (8-bit mono)
+    std::vector<uint16_t> img(64 * 64);
     for (int i = 0; i < 64 * 64; ++i)
-        img[i] = static_cast<uint8_t>((i * 17) % 256);   // non-constant pattern
+        img[i] = static_cast<uint16_t>((i * 17) % 256);
 
-    auto bs  = encode_frame(img, 64, 64, 1);
+    auto bs  = encode_frame(img, 64, 64, 1, 8, 1);
     auto rec = decode_frame(bs);
 
     bool ok = true;
     for (size_t i = 0; i < img.size(); ++i)
-        if (img[i] != rec[i]) { ok = false; break; }
+        if (static_cast<uint8_t>(img[i]) != rec[i]) { ok = false; break; }
 
     std::cout << "Full round-trip " << (ok ? "OK" : "FAILED")
               << "  (bitstream " << bs.size() << " bytes)\n";

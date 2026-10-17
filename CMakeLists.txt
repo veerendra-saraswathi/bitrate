@@ -9,6 +9,7 @@ add_library(bitrate_core
     src/decoder.cpp
     src/wavelet.cpp
     src/bitstream.cpp
+    src/udp_framing.cpp
 )
 
 target_include_directories(bitrate_core PUBLIC include)

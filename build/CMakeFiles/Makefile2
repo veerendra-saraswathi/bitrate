@@ -94,12 +94,12 @@ clean: CMakeFiles/test_roundtrip.dir/clean
 CMakeFiles/bitrate_core.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bitrate_core.dir/build.make CMakeFiles/bitrate_core.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bitrate_core.dir/build.make CMakeFiles/bitrate_core.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target bitrate_core"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target bitrate_core"
 .PHONY : CMakeFiles/bitrate_core.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/bitrate_core.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/veerendrabidarkota/bitrate/build/CMakeFiles 5
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/veerendrabidarkota/bitrate/build/CMakeFiles 6
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/bitrate_core.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/veerendrabidarkota/bitrate/build/CMakeFiles 0
 .PHONY : CMakeFiles/bitrate_core.dir/rule
@@ -111,7 +111,7 @@ bitrate_core: CMakeFiles/bitrate_core.dir/rule
 # codegen rule for target.
 CMakeFiles/bitrate_core.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bitrate_core.dir/build.make CMakeFiles/bitrate_core.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=1,2,3,4,5 "Finished codegen for target bitrate_core"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=1,2,3,4,5,6 "Finished codegen for target bitrate_core"
 .PHONY : CMakeFiles/bitrate_core.dir/codegen
 
 # clean rule for target.
@@ -126,12 +126,12 @@ CMakeFiles/bitrate_core.dir/clean:
 CMakeFiles/encoder.dir/all: CMakeFiles/bitrate_core.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/encoder.dir/build.make CMakeFiles/encoder.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/encoder.dir/build.make CMakeFiles/encoder.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=8,9 "Built target encoder"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=9,10 "Built target encoder"
 .PHONY : CMakeFiles/encoder.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/encoder.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/veerendrabidarkota/bitrate/build/CMakeFiles 7
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/veerendrabidarkota/bitrate/build/CMakeFiles 8
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/encoder.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/veerendrabidarkota/bitrate/build/CMakeFiles 0
 .PHONY : CMakeFiles/encoder.dir/rule
@@ -143,7 +143,7 @@ encoder: CMakeFiles/encoder.dir/rule
 # codegen rule for target.
 CMakeFiles/encoder.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/encoder.dir/build.make CMakeFiles/encoder.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=8,9 "Finished codegen for target encoder"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=9,10 "Finished codegen for target encoder"
 .PHONY : CMakeFiles/encoder.dir/codegen
 
 # clean rule for target.
@@ -158,12 +158,12 @@ CMakeFiles/encoder.dir/clean:
 CMakeFiles/decoder.dir/all: CMakeFiles/bitrate_core.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/decoder.dir/build.make CMakeFiles/decoder.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/decoder.dir/build.make CMakeFiles/decoder.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=6,7 "Built target decoder"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=7,8 "Built target decoder"
 .PHONY : CMakeFiles/decoder.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/decoder.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/veerendrabidarkota/bitrate/build/CMakeFiles 7
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/veerendrabidarkota/bitrate/build/CMakeFiles 8
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/decoder.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/veerendrabidarkota/bitrate/build/CMakeFiles 0
 .PHONY : CMakeFiles/decoder.dir/rule
@@ -175,7 +175,7 @@ decoder: CMakeFiles/decoder.dir/rule
 # codegen rule for target.
 CMakeFiles/decoder.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/decoder.dir/build.make CMakeFiles/decoder.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=6,7 "Finished codegen for target decoder"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=7,8 "Finished codegen for target decoder"
 .PHONY : CMakeFiles/decoder.dir/codegen
 
 # clean rule for target.
@@ -190,12 +190,12 @@ CMakeFiles/decoder.dir/clean:
 CMakeFiles/test_roundtrip.dir/all: CMakeFiles/bitrate_core.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_roundtrip.dir/build.make CMakeFiles/test_roundtrip.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_roundtrip.dir/build.make CMakeFiles/test_roundtrip.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=10,11 "Built target test_roundtrip"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=11,12 "Built target test_roundtrip"
 .PHONY : CMakeFiles/test_roundtrip.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/test_roundtrip.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/veerendrabidarkota/bitrate/build/CMakeFiles 7
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/veerendrabidarkota/bitrate/build/CMakeFiles 8
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_roundtrip.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/veerendrabidarkota/bitrate/build/CMakeFiles 0
 .PHONY : CMakeFiles/test_roundtrip.dir/rule
@@ -207,7 +207,7 @@ test_roundtrip: CMakeFiles/test_roundtrip.dir/rule
 # codegen rule for target.
 CMakeFiles/test_roundtrip.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_roundtrip.dir/build.make CMakeFiles/test_roundtrip.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=10,11 "Finished codegen for target test_roundtrip"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/veerendrabidarkota/bitrate/build/CMakeFiles --progress-num=11,12 "Finished codegen for target test_roundtrip"
 .PHONY : CMakeFiles/test_roundtrip.dir/codegen
 
 # clean rule for target.
