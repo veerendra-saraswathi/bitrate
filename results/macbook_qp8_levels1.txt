@@ -1,0 +1,4 @@
+QP=8 levels=1 mode=1 repeats=200
+encode: mean=29.6498 median=28.4443 p95=36.6307 p99=39.0101 ms
+decode: mean=37.7527 median=36.3411 p95=46.5531 p99=49.1129 ms
+approx FPS (encode)=35.1565
