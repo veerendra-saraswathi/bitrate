@@ -21,3 +21,6 @@ target_link_libraries(bench_levels PRIVATE bitrate_core)
 
 add_executable(test_roundtrip test/test_roundtrip.cpp)
 target_link_libraries(test_roundtrip PRIVATE bitrate_core)
+
+add_executable(bench_quality test/bench_quality.cpp)
+target_link_libraries(bench_quality PRIVATE bitrate_core)

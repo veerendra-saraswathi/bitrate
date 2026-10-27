@@ -4,112 +4,141 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cstdint>
+#include <limits>
 
-// ---------- Mode 0: existing zero-run ----------
-static void entropy_encode(const std::vector<int32_t>& coeffs, std::vector<uint8_t>& out) {
-    size_t i = 0;
-    while (i < coeffs.size()) {
-        if (coeffs[i] == 0) {
-            size_t run = 0;
-            while (i < coeffs.size() && coeffs[i] == 0 && run < 255) {
-                ++run; ++i;
-            }
-            out.push_back(0x00);
-            out.push_back(static_cast<uint8_t>(run));
+// ---------- Mode 0 decoder ----------
+static bool entropy_decode_legacy(const uint8_t* data, size_t n, size_t expected,
+                                  std::vector<int32_t>& coeffs) {
+    coeffs.clear();
+    coeffs.reserve(expected);
+    size_t pos = 0;
+    while (pos < n && coeffs.size() < expected) {
+        uint8_t marker = data[pos++];
+        if (marker == 0x00 && pos < n) {
+            uint8_t run = data[pos++];
+            for (int k = 0; k < run && coeffs.size() < expected; ++k)
+                coeffs.push_back(0);
+        } else if (marker == 0x01 && pos + 5 <= n) {
+            uint32_t u = data[pos] | (data[pos+1] << 8) | (data[pos+2] << 16) | (data[pos+3] << 24);
+            pos += 4;
+            int sign = data[pos++];
+            int32_t v = static_cast<int32_t>(u);
+            if (sign) v = -v;
+            coeffs.push_back(v);
         } else {
-            int32_t v = coeffs[i];
-            out.push_back(0x01);
-            uint32_t u = static_cast<uint32_t>(std::abs(v));
-            out.push_back(static_cast<uint8_t>(u & 0xFF));
-            out.push_back(static_cast<uint8_t>((u >> 8) & 0xFF));
-            out.push_back(static_cast<uint8_t>((u >> 16) & 0xFF));
-            out.push_back(static_cast<uint8_t>((u >> 24) & 0xFF));
-            out.push_back(v < 0 ? 1 : 0);
-            ++i;
+            return false;
         }
     }
+    return coeffs.size() == expected && pos == n;
 }
 
-// ---------- Mode 1: zigzag + varint ----------
-static uint32_t zigzag_encode(int32_t value) {
-    if (value >= 0) return static_cast<uint32_t>(value) * 2u;
-    uint32_t magnitude = static_cast<uint32_t>(-static_cast<int64_t>(value));
-    return magnitude * 2u - 1u;
-}
-
-static void write_varint(uint32_t value, std::vector<uint8_t>& out) {
-    while (value >= 0x80u) {
-        out.push_back(static_cast<uint8_t>((value & 0x7Fu) | 0x80u));
-        value >>= 7;
+// ---------- Mode 1 decoder ----------
+static bool read_varint(const uint8_t* data, size_t size, size_t& pos, uint32_t& value) {
+    value = 0;
+    for (unsigned shift = 0; shift <= 28; shift += 7) {
+        if (pos >= size) return false;
+        uint8_t byte = data[pos++];
+        if (shift == 28 && (byte & 0xF0u) != 0) return false;
+        value |= static_cast<uint32_t>(byte & 0x7Fu) << shift;
+        if ((byte & 0x80u) == 0) return true;
     }
-    out.push_back(static_cast<uint8_t>(value));
+    return false;
 }
 
-static void entropy_encode_varint(const std::vector<int32_t>& coeffs, std::vector<uint8_t>& out) {
-    for (int32_t value : coeffs)
-        write_varint(zigzag_encode(value), out);
+static bool zigzag_decode(uint32_t value, int32_t& result) {
+    if ((value & 1u) == 0) {
+        result = static_cast<int32_t>(value >> 1);
+        return true;
+    }
+    uint32_t magnitude = (value >> 1) + 1u;
+    if (magnitude == 0x80000000u)
+        result = std::numeric_limits<int32_t>::min();
+    else
+        result = -static_cast<int32_t>(magnitude);
+    return true;
 }
 
-// ---------- Public API ----------
-std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
-                                  int width, int height, int qp,
-                                  int levels, int coder_mode);
+static bool entropy_decode_varint(const uint8_t* data, size_t size, size_t expected,
+                                  std::vector<int32_t>& coeffs) {
+    size_t pos = 0;
+    coeffs.clear();
+    coeffs.reserve(expected);
 
-std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
-                                  int width, int height, int qp,
-                                  int levels) {
-    return encode_frame(pixels, width, height, qp, levels, 0);
+    while (coeffs.size() < expected) {
+        // read zero-run length
+        uint32_t run = 0;
+        if (!read_varint(data, size, pos, run)) return false;
+        for (uint32_t r = 0; r < run && coeffs.size() < expected; ++r)
+            coeffs.push_back(0);
+
+        if (coeffs.size() >= expected) break;
+
+        // read one non-zero
+        uint32_t encoded = 0;
+        if (!read_varint(data, size, pos, encoded)) return false;
+        int32_t value = 0;
+        if (!zigzag_decode(encoded, value)) return false;
+        coeffs.push_back(value);
+    }
+    return pos == size && coeffs.size() == expected;
 }
 
-std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
-                                  int width, int height, int qp,
-                                  int levels, int coder_mode) {
-    if (coder_mode != 0 && coder_mode != 1)
-        throw std::invalid_argument("Unsupported entropy coder mode");
+// ---------- Public decoder ----------
+std::vector<uint8_t> decode_frame(const std::vector<uint8_t>& bitstream) {
+    BitstreamReader reader(bitstream);
+    FrameHeader h = reader.read_header();
 
-    FrameHeader h;
-    h.width = static_cast<uint16_t>(width);
-    h.height = static_cast<uint16_t>(height);
-    h.qp = static_cast<uint8_t>(qp);
-    h.levels = static_cast<uint8_t>(levels);
-    h.tile_size = 64;
+    int width = h.width;
+    int height = h.height;
+    int qp = h.qp;
+    int levels = h.levels ? h.levels : 1;
+    int TS = h.tile_size ? h.tile_size : 64;
 
-    BitstreamWriter writer;
-    writer.write_header(h);
+    std::vector<uint8_t> out(width * height, 0);
+    const size_t header_size = 25;
+    if (bitstream.size() < header_size) return out;
+    const uint8_t* payload = bitstream.data() + header_size;
+    size_t payload_len = bitstream.size() - header_size;
 
-    const int TS = h.tile_size;
-    std::vector<uint8_t> payload;
-
+    size_t p = 0;
     for (int ty = 0; ty < height; ty += TS) {
         for (int tx = 0; tx < width; tx += TS) {
             int tw = std::min(TS, width - tx);
             int th = std::min(TS, height - ty);
+            size_t expected = static_cast<size_t>(tw) * th;
 
-            std::vector<int32_t> tile(tw * th);
-            for (int y = 0; y < th; ++y)
-                for (int x = 0; x < tw; ++x)
-                    tile[y * tw + x] = pixels[(ty + y) * width + (tx + x)];
+            if (p + 4 > payload_len) break;
+            uint32_t len = payload[p] | (payload[p+1] << 8) | (payload[p+2] << 16) | (payload[p+3] << 24);
+            p += 4;
+            if (p + len > payload_len || len == 0) break;
 
-            wavelet_5_3_forward(tile, tw, th, levels);
-            quantise(tile, qp);
+            const uint8_t* tile_payload = payload + p;
+            uint8_t coder_mode = tile_payload[0];
+            const uint8_t* entropy_data = tile_payload + 1;
+            size_t entropy_size = len - 1;
+            p += len;
 
-            std::vector<uint8_t> coded;
-            coded.push_back(static_cast<uint8_t>(coder_mode));
-
+            std::vector<int32_t> coeffs;
+            bool ok = false;
             if (coder_mode == 0)
-                entropy_encode(tile, coded);
+                ok = entropy_decode_legacy(entropy_data, entropy_size, expected, coeffs);
+            else if (coder_mode == 1)
+                ok = entropy_decode_varint(entropy_data, entropy_size, expected, coeffs);
             else
-                entropy_encode_varint(tile, coded);
+                throw std::runtime_error("Unknown entropy coder mode");
 
-            uint32_t len = static_cast<uint32_t>(coded.size());
-            payload.push_back(len & 0xFF);
-            payload.push_back((len >> 8) & 0xFF);
-            payload.push_back((len >> 16) & 0xFF);
-            payload.push_back((len >> 24) & 0xFF);
-            payload.insert(payload.end(), coded.begin(), coded.end());
+            if (!ok)
+                throw std::runtime_error("Invalid tile entropy data");
+
+            dequantise(coeffs, qp);
+            wavelet_5_3_inverse(coeffs, tw, th, levels);
+
+            for (int y = 0; y < th; ++y)
+                for (int x = 0; x < tw; ++x) {
+                    int32_t v = coeffs[y * tw + x];
+                    out[(ty + y) * width + (tx + x)] = static_cast<uint8_t>(std::max(0, std::min(v, 255)));
+                }
         }
     }
-
-    writer.write_bytes(payload.data(), payload.size());
-    return writer.data();
+    return out;
 }
