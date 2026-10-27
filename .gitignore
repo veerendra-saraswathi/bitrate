@@ -3,3 +3,4 @@ build/
 *.raw
 *.bin
 .DS_Store
+build-jetson/
