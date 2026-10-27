@@ -57,8 +57,13 @@ int main(int argc, char** argv) {
               << ", channels=" << channels << ")\n";
     std::cout << "Encode time: " << ms << " ms\n";
 
-    // UDP framing loopback
+    // UDP framing + timing
+    auto t_concat_start = std::chrono::high_resolution_clock::now();
     auto packets = frame_bitstream(bitstream);
+    auto t_frame_end = std::chrono::high_resolution_clock::now();
+    double concat_ms = std::chrono::duration<double, std::milli>(t_frame_end - t_concat_start).count();
+    std::cout << "Post-tile (framing): " << concat_ms << " ms\n";
+
     auto recovered = reassemble_packets(packets);
     if (recovered == bitstream) {
         std::cout << "UDP framing loopback OK (" << packets.size() << " packets)\n";

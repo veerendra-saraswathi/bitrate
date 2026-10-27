@@ -4,13 +4,14 @@
 #include <string>
 
 struct FrameHeader {
-    uint32_t magic = 0xB17E0001;   // "BITE"
+    uint32_t magic = 0xB17E0001;
     uint16_t width = 0;
     uint16_t height = 0;
     uint8_t  bit_depth = 8;
-    uint8_t  channels = 1;         // 1 = mono, 3 = RGB
-    uint8_t  tile_size = 128;
-    uint8_t  qp = 1;               // quantisation parameter
+    uint8_t  channels = 1;
+    uint8_t  tile_size = 64;
+    uint8_t  qp = 1;
+    uint8_t  levels = 1;
     uint32_t sequence = 0;
     uint64_t timestamp = 0;
 };
