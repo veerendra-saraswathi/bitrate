@@ -92,7 +92,8 @@ int main(int argc, char** argv) {
     std::string path = argv[1];
     int width  = std::stoi(argv[2]);
     int height = std::stoi(argv[3]);
-    int levels = (argc > 4) ? std::stoi(argv[4]) : 3;
+    int levels = (argc > 4) ? std::stoi(argv[4]) : 1;
+    // default levels=1 (best RD on KAIST thermal)
     int mode   = (argc > 5) ? std::stoi(argv[5]) : 1;
 
     auto orig = load_raw(path, width, height);
