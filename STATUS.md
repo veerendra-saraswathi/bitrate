@@ -11,7 +11,7 @@
 | Stage              | Completeness | Notes |
 |--------------------|--------------|-------|
 | POC                | 85%          | Perfect reconstruction on KAIST VIS + IR achieved. Core feasibility shown. |
-| MVP                | 45%          | Active focus for next 8–10 weeks. |
+| MVP                | 55%          | Entropy improved (zero-run mode 1), SSIM bench, levels=1 baseline, basic rate-control lookup. |
 | Final (Seeker)     | 5%           | Full SoW acceptance. Depends on solid MVP. |
 
 **Current priority:** Finish MVP.
