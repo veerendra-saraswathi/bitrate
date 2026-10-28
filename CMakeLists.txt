@@ -41,3 +41,6 @@ target_link_libraries(test_integrity PRIVATE bitrate_core)
 
 add_executable(test_api test/test_api.cpp)
 target_link_libraries(test_api PRIVATE bitrate_core)
+
+add_executable(test_multiframe test/test_multiframe.cpp)
+target_link_libraries(test_multiframe PRIVATE bitrate_core)
