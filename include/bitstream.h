@@ -4,18 +4,23 @@
 #include <string>
 
 struct FrameHeader {
-    uint32_t magic = 0xB17E0001;
-    uint16_t width = 0;
-    uint16_t height = 0;
-    uint8_t  bit_depth = 8;
-    uint8_t  channels = 1;
-    uint8_t  tile_size = 64;
-    uint8_t  qp = 1;
-    uint8_t  levels = 1;
-    uint32_t sequence = 0;
-    uint64_t timestamp = 0;
+    uint32_t magic       = 0xB17E0001;
+    uint16_t version     = 0x0002;
+    uint16_t header_size = 64;
+    uint16_t width       = 0;
+    uint16_t height      = 0;
+    uint8_t  bit_depth   = 8;
+    uint8_t  channels    = 1;
+    uint8_t  tile_size   = 64;
+    uint8_t  qp          = 1;
+    uint8_t  levels      = 1;
+    uint8_t  coder_mode  = 1;   // 0 = zero-run, 1 = varint
+    uint8_t  flags       = 0;   // bit0 = perfect-reconstruction
+    uint8_t  reserved0   = 0;
+    uint32_t sequence    = 0;
+    uint64_t timestamp   = 0;
+    uint8_t  reserved[32] = {0};
 };
-
 class BitstreamWriter {
 public:
     void write_header(const FrameHeader& h);

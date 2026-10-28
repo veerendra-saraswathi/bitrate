@@ -9,9 +9,14 @@ add_library(bitrate_core
     src/wavelet.cpp
     src/encoder.cpp
     src/decoder.cpp
+    src/rate_control.cpp
+    src/udp_framing.cpp
 )
 
 target_include_directories(bitrate_core PUBLIC include)
+
+add_executable(encoder src/encoder_main.cpp)
+target_link_libraries(encoder PRIVATE bitrate_core)
 
 add_executable(test_cascade test/test_cascade.cpp)
 target_link_libraries(test_cascade PRIVATE bitrate_core)
@@ -24,5 +29,15 @@ target_link_libraries(test_roundtrip PRIVATE bitrate_core)
 
 add_executable(bench_quality test/bench_quality.cpp)
 target_link_libraries(bench_quality PRIVATE bitrate_core)
+
 add_executable(bench_jetson test/bench_jetson.cpp)
 target_link_libraries(bench_jetson PRIVATE bitrate_core)
+
+add_executable(rate_control_demo test/rate_control_demo.cpp)
+target_link_libraries(rate_control_demo PRIVATE bitrate_core)
+
+add_executable(test_integrity test/test_integrity.cpp)
+target_link_libraries(test_integrity PRIVATE bitrate_core)
+
+add_executable(test_api test/test_api.cpp)
+target_link_libraries(test_api PRIVATE bitrate_core)

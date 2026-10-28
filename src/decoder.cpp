@@ -93,7 +93,8 @@ std::vector<uint8_t> decode_frame(const std::vector<uint8_t>& bitstream) {
     int TS = h.tile_size ? h.tile_size : 64;
 
     std::vector<uint8_t> out(width * height, 0);
-    const size_t header_size = 25;
+    
+    const size_t header_size = h.header_size ? h.header_size : 64;
     if (bitstream.size() < header_size) return out;
     const uint8_t* payload = bitstream.data() + header_size;
     size_t payload_len = bitstream.size() - header_size;

@@ -62,7 +62,7 @@ static void entropy_encode_varint(const std::vector<int32_t>& coeffs, std::vecto
 }
 
 // ---------- Public API ----------
-// Note: levels=1 recommended as default (best rate-distortion on measured KAIST thermal data)
+// Note: levels=1 recommended as default (best rate-distortion on measured KAIST data)
 std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
                                   int width, int height, int qp,
                                   int levels, int coder_mode);
@@ -70,7 +70,7 @@ std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
 std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
                                   int width, int height, int qp,
                                   int levels) {
-    return encode_frame(pixels, width, height, qp, levels, 0);
+    return encode_frame(pixels, width, height, qp, levels, 1);  // default mode 1
 }
 
 std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
@@ -80,11 +80,17 @@ std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
         throw std::invalid_argument("Unsupported entropy coder mode");
 
     FrameHeader h;
-    h.width = static_cast<uint16_t>(width);
-    h.height = static_cast<uint16_t>(height);
-    h.qp = static_cast<uint8_t>(qp);
-    h.levels = static_cast<uint8_t>(levels);
-    h.tile_size = 64;
+    h.width       = static_cast<uint16_t>(width);
+    h.height      = static_cast<uint16_t>(height);
+    h.qp          = static_cast<uint8_t>(qp);
+    h.levels      = static_cast<uint8_t>(levels);
+    h.coder_mode  = static_cast<uint8_t>(coder_mode);
+    h.tile_size   = 64;
+    h.version     = 0x0002;
+    h.header_size = 64;
+    h.bit_depth   = 8;
+    h.channels    = 1;
+    if (qp == 1) h.flags |= 0x01;   // perfect-reconstruction flag
 
     BitstreamWriter writer;
     writer.write_header(h);
@@ -124,21 +130,4 @@ std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
 
     writer.write_bytes(payload.data(), payload.size());
     return writer.data();
-}
-
-// Simple lookup from the levels=1 KAIST thermal curve (mode 1)
-// Returns the highest QP whose measured bpp is still <= target_bpp
-int select_qp_for_target_bpp(double target_bpp) {
-    static const double bpp[33] = {
-        0,
-        6.047, 3.718, 3.533, 3.489, 3.463, 3.444, 3.425, 3.403,
-        3.384, 3.363, 3.349, 3.334, 3.319, 3.306, 3.284, 3.264,
-        3.238, 3.212, 3.178, 3.133, 3.086, 3.031, 2.985, 2.912,
-        2.839, 2.754, 2.667, 2.564, 2.458, 2.329, 2.194, 2.063
-    };
-    if (target_bpp >= bpp[1]) return 1;
-    for (int qp = 32; qp >= 2; --qp) {
-        if (bpp[qp] <= target_bpp) return qp;
-    }
-    return 32;
 }
