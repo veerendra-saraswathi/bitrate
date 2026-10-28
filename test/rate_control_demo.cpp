@@ -22,7 +22,6 @@ int main(int argc, char** argv) {
               << " target_bpp=" << target
               << " -> selected QP=" << qp << "\n";
 
-    // Also show a few neighbouring points for context
     auto pts = (curve == "visible" || curve == "vis")
                ? load_kaist_visible_levels1()
                : load_kaist_thermal_levels1();
