@@ -1,0 +1,12 @@
+{
+  "name": "D0_lossless",
+  "architecture": "D",
+  "profile": "L",
+  "precomputed": {
+    "mbps": 9.86,
+    "psnr": 999,
+    "max_err": 0,
+    "encode_ms": 3.8,
+    "bit_exact": true
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "D1_near1",
+  "architecture": "D",
+  "profile": "NL",
+  "precomputed": {
+    "mbps": 5.47,
+    "psnr": 50.3,
+    "max_err": 1,
+    "encode_ms": 2.9,
+    "bit_exact": false
+  }
+}

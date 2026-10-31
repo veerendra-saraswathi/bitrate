@@ -1,0 +1,12 @@
+{
+  "name": "B1_qp1",
+  "architecture": "B",
+  "profile": "NL",
+  "precomputed": {
+    "mbps": 14.01,
+    "psnr": 67.6,
+    "max_err": 1,
+    "encode_ms": 75,
+    "bit_exact": false
+  }
+}

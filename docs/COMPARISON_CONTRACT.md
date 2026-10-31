@@ -35,4 +35,3 @@ Stretch targets (D reference):
 1. Warm-up run (discard)
 2. ≥10 timed runs
 3. Report median encode time
-

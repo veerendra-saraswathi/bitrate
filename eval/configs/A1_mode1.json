@@ -1,0 +1,10 @@
+{
+  "name": "A1_mode1",
+  "architecture": "A",
+  "profile": "L",
+  "encoder": "./build/encoder",
+  "args": [],
+  "bit_exact": true,
+  "assumed_psnr": 999,
+  "assumed_max_err": 0
+}
