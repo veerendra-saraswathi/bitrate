@@ -5,137 +5,94 @@
 **Repo:** https://github.com/veerendra-saraswathi/bitrate  
 **Encoder platform:** NVIDIA Jetson Orin Nano (preferred; Xavier NX acceptable)  
 **Decoder platform:** Linux PC / Windows PC  
-**Last updated:** 2026-10-31 16:05 IST
+**Last updated:** 2026-11-02 00:05 IST
 
 ## Overall Status
 
-| Stage              | Completeness | Notes |
-|--------------------|--------------|-------|
-| POC                | 85%          | Perfect reconstruction on KAIST VIS + IR with Architecture A. Core feasibility shown. |
-| MVP                | 65%          | Host RD, latency and integrity evidence for A and B. D reference frozen. Jetson end-to-end and ~2 Mbps target remain open. |
-| Final (Seeker)     | 5%           | Full SoW acceptance. Depends on solid MVP. |
+| Stage          | Completeness | Notes |
+|----------------|--------------|-------|
+| POC            | 90%          | Perfect reconstruction on KAIST VIS + IR with Architecture A. Core feasibility shown. |
+| MVP            | 75%          | Matched Jetson A/B1/D measurements complete. D is the clear rate/latency leader on thermal. Pure C/C++ port of D remains open. |
+| Final (Seeker) | 8%           | Full SoW acceptance. Depends on solid MVP + pure C/C++ JPEG-LS. |
 
-**Current priority:** Freeze D as immutable reference. Lock comparison contract. Run bounded refinement of A (lossless / Profile L) and B (near-lossless / Profile NL). Then Jetson validation.
+**Current priority:** Freeze A/B1/D Jetson baselines. Promote D (JPEG-LS) as lead candidate. Retain A as exact-reconstruction reference. Begin pure C/C++ JPEG-LS port feasibility.
 
-## Architecture Scores (2026-10-31)
+## Architecture Scores (2026-11-02, Jetson-validated)
 
-| Architecture                  | Score / 100 | Status                  | Thermal (640×512 @ 30 fps)                                      | Notes |
-|-------------------------------|-------------|-------------------------|-----------------------------------------------------------------|-------|
-| **A** – 5/3 wavelet           | 65          | Production candidate (L) | ~20.3 Mbps lossless, bit-exact                                 | Host latency good. Refine toward ≤12 Mbps. |
-| **B1 / B64** – fast DCT + CRC | 62          | Production candidate (NL)| ~7.0 / 6.6 Mbps @ ~43.5 dB, max_err ≥1                         | Current best lossy. Not bit-exact. Refine toward ≤6 Mbps / ~50 dB. |
-| **C** – predictive residual   | 35          | **Closed / flop**       | 24–41 Mbps (lossy uncompetitive)                               | QP=1 exact. Hypothesis rejected. Do not revisit. |
-| **D** – JPEG-LS (CharLS)      | 72          | **Reference only**      | NEAR=0: 9.86 Mbps bit-exact; NEAR=1: 5.47 Mbps @ 50.3 dB (max_err=1) | Strongest reference. External library. Frozen. |
+| Architecture                  | Score / 100 | Status                          | Thermal (640×512 @ 30 fps)                  | Notes |
+|-------------------------------|-------------|---------------------------------|---------------------------------------------|-------|
+| **D** – JPEG-LS (CharLS)      | 78          | **Lead candidate**              | NEAR=4: 2.08 Mbps @ 41.0 dB, 1.86 ms       | Best thermal rate/quality/latency balance. External library today. |
+| **A** – 5/3 wavelet           | 64          | Exact-reconstruction reference  | ~20.3 Mbps lossless, ~4 ms, bit-exact      | Excellent latency and exactness. Rate far from 2 Mbps. |
+| **B1** – fast DCT + CRC       | 58          | Optimisation candidate          | ~6.6 Mbps @ 43.5 dB, ~119 ms               | Best custom RD. Latency fails SoW. |
+| **C** – predictive residual   | 35          | **Closed / flop**               | 24–41 Mbps                                  | Do not revisit. |
 
-### Detailed D results (frozen 2026-10-31)
+### Jetson results summary (Orin Nano Super class, 2026-11-01)
 
-Source: `results/architecture_D_jpegls.csv` (imagecodecs / CharLS)
+**Architecture A (wavelet)**  
+- Thermal 640×512: encode median ~4.0–4.4 ms across QP 1–32; best lossy ~20.3 Mbps @ 24.8 dB.  
+- Visible 640×512: encode median ~4.4–6.2 ms; best lossy ~38.6 Mbps.  
+- QP=1 bit-exact. Meets ≤2-frame latency easily.
 
-**Thermal (KAIST IR):**
-- NEAR=0: 9.86 Mbps, bit-exact, encode 3.77 ms
-- NEAR=1: 5.47 Mbps, 50.32 dB, max_err=1, encode 2.91 ms
-- NEAR=2: 3.51 Mbps, 46.1 dB, max_err=2
-- NEAR=4: 2.08 Mbps, 41.0 dB, max_err=4
+**Architecture B1 (DCT)**  
+- Thermal: ~6.6 Mbps @ 43.5 dB (QP=32), encode ~119 ms.  
+- Visible: ~9.7 Mbps @ 34.5 dB, encode ~120 ms.  
+- Superior RD to A, but latency fails both 33 ms and 66.7 ms budgets. Not bit-exact.
 
-**Visible (KAIST VIS):**
-- NEAR=0: 32.16 Mbps, bit-exact, encode 7.44 ms
-- NEAR=1: 19.27 Mbps, 49.9 dB, max_err=1
-- NEAR=2: 15.63 Mbps, 45.2 dB, max_err=2
-- NEAR=4: 12.58 Mbps, 40.2 dB, max_err=4
+**Architecture D (JPEG-LS / CharLS)** — this Jetson  
+| Frame   | NEAR | Mbps @30fps | PSNR  | Encode median | Max err |
+|---------|------|-------------|-------|---------------|---------|
+| Thermal | 0    | 9.86       | 99.0 | ~10.8 ms     | 0      |
+| Thermal | 1    | 5.47       | 50.3 | ~5.4 ms      | 1      |
+| Thermal | 2    | 3.51       | 46.1 | ~3.2 ms      | 2      |
+| Thermal | 4    | **2.08**   | **41.0** | **1.86 ms** (p95 1.88) | 4 |
+| Visible | 4    | 12.58      | 40.2 | ~17 ms       | 4      |
 
-D beats A on lossless thermal rate (~2× better) and beats B on near-lossless RD (lower rate + higher PSNR at max_err=1). Host latency excellent on all points.
+D is the first architecture that simultaneously approaches the 2 Mbps thermal target, retains usable quality, and stays well inside the Jetson latency budget.
 
 ## SoW Key Requirements (summary)
 
-| Requirement                  | Target / Constraint                          |
-|-----------------------------|----------------------------------------------|
-| Input                       | Raw mono VIS / IR                            |
-| Resolution                  | ~1920×1200 indicative; lower OK for MVP     |
-| Bit depth                   | 8/10/12/14/16-bit mono or colour             |
-| Encoder / Decoder           | Pure C/C++, **no external runtime libraries**|
-| Encoder platform            | Jetson Orin Nano                             |
-| Decoder platform            | Linux / Windows PC                           |
-| Encoder latency             | ≤ 2 frames                                   |
-| Streams                     | Single stream only                           |
-| Output                      | Bitstream + ~128-byte metadata placeholder   |
-| Storage / Transmission      | File + Ethernet (UDP)                        |
-| Bandwidth                   | Variable / configurable                      |
-| Perfect reconstruction      | **Hard acceptance criterion**                |
-| Priority regions            | Desirable                                    |
+| Requirement            | Target / Constraint                           |
+|------------------------|-----------------------------------------------|
+| Input                  | Raw mono VIS / IR                             |
+| Resolution             | ~1920×1200 indicative; lower OK for MVP       |
+| Bit depth              | 8/10/12/14/16-bit mono or colour              |
+| Encoder / Decoder      | Pure C/C++, **no external runtime libraries** |
+| Encoder platform       | Jetson Orin Nano                              |
+| Decoder platform       | Linux / Windows PC                            |
+| Encoder latency        | ≤ 2 frames                                    |
+| Perfect reconstruction | Hard acceptance criterion (Profile L)         |
+| Bandwidth              | Variable / configurable; ~2 Mbps thermal goal |
 
-## Operating Profiles (architectural decision)
+## Operating Profiles
 
-Because perfect reconstruction is a hard SoW criterion:
-
-- **Profile L (Lossless):** Bit-exact (max_err=0). Architecture A path. Required unless RCI explicitly accepts otherwise.
-- **Profile NL (Near-lossless):** Bounded reconstruction error (max_err ≤ 1 or as approved). Architecture B path. Only if RCI formally accepts non-zero error.
-
-These are named profiles, not merely QP switches.
+- **Profile L (Lossless):** Bit-exact (max_err=0). Architecture A remains the reference.  
+- **Profile NL (Near-lossless):** Bounded error. Architecture D (NEAR≥1) is the new lead path; B1 is secondary.
 
 ## Comparison Contract (locked)
 
-Before further refinement, all A/B measurements use:
-
-- Frames: same KAIST thermal + visible 640×512 raw (`data/kaist_thermal.raw`, `data/kaist_visible.raw`)
-- Metrics: Mbps @ 30 fps, PSNR, max absolute error, bit-exact flag, host encode time (median)
-- Targets: A ≤ 12 Mbps lossless (stretch 9.86); B ≤ 6 Mbps with max_err ≤ 1 and PSNR closer to 50 dB
-- D results frozen and immutable as reference baseline
-- Separate columns for raw vs integrity-enabled (CRC) where applicable
-
-## 1. POC
-
-**Status: ~85% — essentially complete.**
-
-Achieved with Architecture A:
-- Cascading reversible 5/3 wavelet with exact round-trip
-- Entropy coding, multi-threaded tiles and UDP framing
-- Perfect reconstruction on KAIST thermal + visible
-- Self-contained C/C++
-
-## 2. MVP
-
-**Status: ~65%.**
-
-Host evidence exists for A and B. D reference frozen. Remaining: bounded A/B refinement under the locked contract, Profile L/NL decision, Jetson latency/memory/FPS proof, and approach to the ~2 Mbps target (or documented gap).
-
-### Architecture A (Profile L candidate)
-- Thermal lossless: ~20.3 Mbps, bit-exact
-- Host warm encode: ~0.86 frames @ 30 fps
-- Gaps: rate ~2× worse than D; corruption recovery weaker than B
-
-### Architecture B1/B64 (Profile NL candidate)
-- Thermal: ~7.0 / 6.6 Mbps @ ~43.5 dB (32×32 / 64×64 CRC)
-- Host encode: ~1.8 frames @ 30 fps
-- Gaps: not bit-exact; rate still above D NEAR=1; no Jetson numbers
-
-### Architecture C
-Closed. Hypothesis rejected. Do not reopen.
-
-### Architecture D
-Reference only. Frozen. Not a production dependency.
-
-## 3. Final (Seeker-Grade)
-
-**Status: ~5%.** Out of current scope until MVP closes.
+- Frames: same KAIST thermal + visible 640×512 raw  
+- Metrics: Mbps @ 30 fps, PSNR, max absolute error, bit-exact flag, encode median/p95  
+- Platforms: host + Jetson Orin Nano class  
+- D CharLS numbers frozen as reference; production path must be pure C/C++
 
 ## Next actions (MVP closure path)
 
-1. Freeze D results permanently (`results/frozen_D_2026-10-31.csv` + checksum).
-2. Write `docs/COMPARISON_CONTRACT.md` locking frames, metrics, targets, and timing protocol.
-3. **Track A (lossless refinement)** — time-box 2 iterations:
-   - Entropy coder alternatives, wavelet levels, tile size
-   - Success: ≤12 Mbps thermal lossless, bit-exact
-   - Stop if two iterations show no meaningful gain
-4. **Track B (near-lossless refinement)** — time-box 2 iterations:
-   - QP lookup, residual coding, quantisation
-   - Success: ≤6 Mbps with max_err ≤ 1 and higher PSNR
-   - Stop if it cannot approach D’s RD
-5. Publish **Architecture Selection v1** (A vs B vs D reference) under Profile L / Profile NL.
-6. Update this STATUS.md and scores only when measured gates move.
-7. Jetson Orin Nano validation (encode/decode latency, memory, sustained FPS, end-to-end ≤2 frames) for the selected pure C++ implementation(s).
+1. Freeze A/B1/D Jetson baselines permanently (`results/frozen_jetson_2026-11-01.csv` + checksum).  
+2. CharLS license & dependency review (BSD-3-Clause).  
+3. **Pure C/C++ JPEG-LS port feasibility** (priority):  
+   - Lossless (NEAR=0) first, then NEAR=1/2/4.  
+   - Match CharLS bitrate/PSNR on the same KAIST frames.  
+   - No external runtime library.  
+4. Decoder timing + repeated-run distributions for the pure port.  
+5. Thermal NEAR=4 refinement (push 2.08 Mbps under 2 Mbps if possible).  
+6. Visible compression investigation (secondary).  
+7. Architecture Selection v2 once pure D port numbers exist.  
+8. Jetson re-validation of the pure C/C++ D implementation.
 
-**Do not** introduce new transforms or predictors without evidence.  
-**Do not** claim the 2 Mbps or Jetson gates closed until measured.
+**Do not** invest further in B1 SIMD until the pure JPEG-LS port feasibility is known.  
+**Do not** claim the 2 Mbps or pure-C++ gates closed until measured on the self-contained implementation.
 
 ---
 
-*D results source: imagecodecs (CharLS) on 640×512 KAIST frames, 2026-10-31. A/B numbers from 29–30 Oct checkpoint. C closed 29 Oct.*
+*Jetson measurements: EDGE AI Platform Orin Nano Super class, 2026-11-01.  
+A/B1/D numbers from matched KAIST 640×512 frames. C remains closed.*
