@@ -1,3 +1,7 @@
+#include "bitrate.h"
+
+#include "bitrate.h"
+
 #include "bitstream.h"
 #include "wavelet.h"
 #include <vector>
@@ -63,17 +67,17 @@ static void entropy_encode_varint(const std::vector<int32_t>& coeffs, std::vecto
 
 // ---------- Public API ----------
 // Note: levels=1 recommended as default (best rate-distortion on measured KAIST data)
-std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
+std::vector<uint8_t> encode_frame_a(const std::vector<uint8_t>& pixels,
                                   int width, int height, int qp,
                                   int levels, int coder_mode);
 
-std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
+std::vector<uint8_t> encode_frame_a(const std::vector<uint8_t>& pixels,
                                   int width, int height, int qp,
                                   int levels) {
-    return encode_frame(pixels, width, height, qp, levels, 1);  // default mode 1
+    return encode_frame_a(pixels, width, height, qp, levels, 1);  // default mode 1
 }
 
-std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
+std::vector<uint8_t> encode_frame_a(const std::vector<uint8_t>& pixels,
                                   int width, int height, int qp,
                                   int levels, int coder_mode) {
     if (coder_mode != 0 && coder_mode != 1)
@@ -128,6 +132,84 @@ std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
         }
     }
 
+    writer.write_bytes(payload.data(), payload.size());
+    return writer.data();
+}
+
+
+#include "jpegls.h"
+
+std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
+                                  int width, int height,
+                                  int qp,
+                                  int levels,
+                                  int coder_mode,
+                                  Architecture arch,
+                                  int near)
+{
+    if (arch == Architecture::D) {
+        return encode_jpegls(pixels, width, height, near);
+    }
+    return encode_frame_a(pixels, width, height, qp, levels, coder_mode);
+}
+
+std::vector<uint8_t> encode_frame_a_u16(const std::vector<uint16_t>& pixels,
+                                        int width, int height,
+                                        int qp,
+                                        int levels,
+                                        int coder_mode)
+{
+    if (width <= 0 || height <= 0 ||
+        pixels.size() != static_cast<size_t>(width) * height)
+        throw std::invalid_argument("encode_frame_a_u16: bad dimensions");
+    if (coder_mode != 0 && coder_mode != 1)
+        throw std::invalid_argument("Unsupported entropy coder mode");
+
+    FrameHeader h;
+    h.width       = static_cast<uint16_t>(width);
+    h.height      = static_cast<uint16_t>(height);
+    h.qp          = static_cast<uint8_t>(qp);
+    h.levels      = static_cast<uint8_t>(levels);
+    h.coder_mode  = static_cast<uint8_t>(coder_mode);
+    h.tile_size   = 64;
+    h.version     = 0x0002;
+    h.header_size = 64;
+    h.bit_depth   = 16;          // <-- the only material change
+    h.channels    = 1;
+    if (qp == 1) h.flags |= 0x01;
+
+    BitstreamWriter writer;
+    writer.write_header(h);
+
+    const int TS = h.tile_size;
+    std::vector<uint8_t> payload;
+
+    for (int ty = 0; ty < height; ty += TS) {
+        for (int tx = 0; tx < width; tx += TS) {
+            int tw = std::min(TS, width - tx);
+            int th = std::min(TS, height - ty);
+            std::vector<int32_t> tile(tw * th);
+            for (int y = 0; y < th; ++y)
+                for (int x = 0; x < tw; ++x)
+                    tile[y * tw + x] = static_cast<int32_t>(pixels[(ty + y) * width + (tx + x)]);
+
+            wavelet_5_3_forward(tile, tw, th, levels);
+
+            std::vector<uint8_t> coded;
+            coded.push_back(static_cast<uint8_t>(coder_mode));
+            if (coder_mode == 1)
+                entropy_encode_varint(tile, coded);
+            else
+                entropy_encode(tile, coded);
+
+            uint32_t len = static_cast<uint32_t>(coded.size());
+            payload.push_back((len >> 0) & 0xFF);
+            payload.push_back((len >> 8) & 0xFF);
+            payload.push_back((len >> 16) & 0xFF);
+            payload.push_back((len >> 24) & 0xFF);
+            payload.insert(payload.end(), coded.begin(), coded.end());
+        }
+    }
     writer.write_bytes(payload.data(), payload.size());
     return writer.data();
 }

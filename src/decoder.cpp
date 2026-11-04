@@ -1,4 +1,5 @@
 #include "bitstream.h"
+#include "jpegls.h"
 #include "wavelet.h"
 #include <vector>
 #include <algorithm>
@@ -83,6 +84,14 @@ static bool entropy_decode_varint(const uint8_t* data, size_t size, size_t expec
 
 // ---------- Public decoder ----------
 std::vector<uint8_t> decode_frame(const std::vector<uint8_t>& bitstream) {
+    // Architecture D: raw JPEG-LS (SOI = 0xFF 0xD8)
+    if (bitstream.size() >= 2 &&
+        bitstream[0] == 0xFF && bitstream[1] == 0xD8) {
+        int w = 0, h = 0;
+        return decode_jpegls(bitstream, w, h);
+    }
+
+    // Architecture A: existing bitrate FrameHeader path
     BitstreamReader reader(bitstream);
     FrameHeader h = reader.read_header();
 
@@ -137,6 +146,66 @@ std::vector<uint8_t> decode_frame(const std::vector<uint8_t>& bitstream) {
                     int32_t v = coeffs[y * tw + x];
                     out[(ty + y) * width + (tx + x)] = static_cast<uint8_t>(std::max(0, std::min(v, 255)));
                 }
+        }
+    }
+    return out;
+}
+
+std::vector<uint16_t> decode_frame_a_u16(const std::vector<uint8_t>& bitstream)
+{
+    BitstreamReader reader(bitstream);
+    FrameHeader h = reader.read_header();
+    if (h.bit_depth != 16)
+        throw std::runtime_error("decode_frame_a_u16: expected bit_depth 16");
+
+    int width = h.width;
+    int height = h.height;
+    int levels = h.levels ? h.levels : 1;
+    int TS = h.tile_size ? h.tile_size : 64;
+
+    const size_t header_size = h.header_size ? h.header_size : 64;
+    if (bitstream.size() < header_size)
+        throw std::runtime_error("bitstream too short");
+
+    const uint8_t* payload = bitstream.data() + header_size;
+    size_t payload_len = bitstream.size() - header_size;
+    size_t pos = 0;
+
+    std::vector<uint16_t> out(width * height, 0);
+
+    for (int ty = 0; ty < height; ty += TS) {
+        for (int tx = 0; tx < width; tx += TS) {
+            if (pos + 4 > payload_len) break;
+            uint32_t len = payload[pos] | (payload[pos+1]<<8) | (payload[pos+2]<<16) | (payload[pos+3]<<24);
+            pos += 4;
+            if (pos + len > payload_len) break;
+
+            int tw = std::min(TS, width - tx);
+            int th = std::min(TS, height - ty);
+            size_t expected = static_cast<size_t>(tw) * th;
+            std::vector<int32_t> coeffs(expected);
+
+            const uint8_t* coded = payload + pos;
+            int coder_mode = coded[0];
+            const uint8_t* entropy_data = coded + 1;
+            size_t entropy_size = len - 1;
+
+            bool ok = false;
+            if (coder_mode == 0)
+                ok = entropy_decode_legacy(entropy_data, entropy_size, expected, coeffs);
+            else
+                ok = entropy_decode_varint(entropy_data, entropy_size, expected, coeffs);
+            if (!ok)
+                throw std::runtime_error("entropy decode failed");
+
+            wavelet_5_3_inverse(coeffs, tw, th, levels);
+
+            for (int y = 0; y < th; ++y)
+                for (int x = 0; x < tw; ++x)
+                    out[(ty + y) * width + (tx + x)] =
+                        static_cast<uint16_t>(std::clamp(coeffs[y * tw + x], 0, 65535));
+
+            pos += len;
         }
     }
     return out;

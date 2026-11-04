@@ -4,3 +4,18 @@ build/
 *.bin
 .DS_Store
 build-jetson/
+private_docs/
+data/large/
+*.raw # if not already ignored
+private_docs/
+eval/results/
+data/large/
+
+# Private RCI reference (never commit)
+/reference_private/
+/data_private/
+/runs_private/
+/benchmark_private/
+
+# Large local datasets
+/data/large/

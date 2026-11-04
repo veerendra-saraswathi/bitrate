@@ -1,18 +1,8 @@
 #pragma once
-// bitrate — public API (v0.2)
-//
-// Stable surface for the low-bitrate intra-frame encoder/decoder.
-// All other headers (bitstream.h, wavelet.h, rate_control.h, …) are internal.
-//
-// Requirements: C++17, no external runtime libraries.
-
 #include <cstdint>
 #include <vector>
 #include <string>
 
-// ------------------------------------------------------------------
-// Frame header (Bitstream v0.2, 64 bytes)
-// ------------------------------------------------------------------
 struct FrameHeader {
     uint32_t magic       = 0xB17E0001;
     uint16_t version     = 0x0002;
@@ -24,59 +14,40 @@ struct FrameHeader {
     uint8_t  tile_size   = 64;
     uint8_t  qp          = 1;
     uint8_t  levels      = 1;
-    uint8_t  coder_mode  = 1;   // 0 = zero-run, 1 = varint (recommended)
-    uint8_t  flags       = 0;   // bit0 = perfect-reconstruction (qp == 1)
+    uint8_t  coder_mode  = 1;
+    uint8_t  flags       = 0;
     uint8_t  reserved0   = 0;
     uint32_t sequence    = 0;
     uint64_t timestamp   = 0;
     uint8_t  reserved[32] = {0};
 };
 
-// ------------------------------------------------------------------
-// Core encode / decode
-// ------------------------------------------------------------------
+enum class Architecture : int { A = 0, D = 1 };
 
-// Encode one frame.
-// pixels: row-major 8-bit mono (width * height bytes)
-// qp:     1 = perfect reconstruction, higher = coarser
-// levels: wavelet levels (1 recommended)
-// coder_mode: 1 = varint (recommended), 0 = legacy zero-run
-// Returns the complete bitstream (64-byte header + payload).
 std::vector<uint8_t> encode_frame(const std::vector<uint8_t>& pixels,
                                   int width, int height,
-                                  int qp,
+                                  int qp = 1,
                                   int levels = 1,
-                                  int coder_mode = 1);
+                                  int coder_mode = 1,
+                                  Architecture arch = Architecture::A,
+                                  int near = 0);
 
-// Decode one frame.
-// Returns row-major 8-bit mono of size width * height.
-// Throws std::runtime_error on malformed bitstream.
 std::vector<uint8_t> decode_frame(const std::vector<uint8_t>& bitstream);
 
-// ------------------------------------------------------------------
-// Rate control (CSV-driven)
-// ------------------------------------------------------------------
-
-// Select the highest QP whose measured bpp is still <= target_bpp.
-// curve_name: "thermal" or "visible" (case-insensitive).
-// Returns -1 if the curve cannot be loaded.
 int select_qp_for_target_bpp(const std::string& curve_name, double target_bpp);
 
-// ------------------------------------------------------------------
-// Convenience
-// ------------------------------------------------------------------
+// 16-bit mono entry points (extreme-case / higher bit-depth)
+std::vector<uint8_t> encode_frame_u16(const std::vector<uint16_t>& pixels,
+                                      int width, int height,
+                                      Architecture arch = Architecture::D,
+                                      int near = 0);
+std::vector<uint16_t> decode_frame_u16(const std::vector<uint8_t>& bitstream,
+                                       int& width_out, int& height_out);
 
-// Encode using a target bitrate instead of an explicit QP.
-// Returns empty vector on failure.
-inline std::vector<uint8_t> encode_frame_target_bpp(
-        const std::vector<uint8_t>& pixels,
-        int width, int height,
-        double target_bpp,
-        const std::string& curve_name = "thermal",
-        int levels = 1,
-        int coder_mode = 1)
-{
-    int qp = select_qp_for_target_bpp(curve_name, target_bpp);
-    if (qp < 0) return {};
-    return encode_frame(pixels, width, height, qp, levels, coder_mode);
-}
+// Architecture A — 16-bit mono
+std::vector<uint8_t> encode_frame_a_u16(const std::vector<uint16_t>& pixels,
+                                        int width, int height,
+                                        int qp = 1,
+                                        int levels = 1,
+                                        int coder_mode = 1);
+std::vector<uint16_t> decode_frame_a_u16(const std::vector<uint8_t>& bitstream);
