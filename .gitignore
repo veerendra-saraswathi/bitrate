@@ -19,3 +19,20 @@ data/large/
 
 # Large local datasets
 /data/large/
+
+# build & temp
+build-jpegls/
+*.bak
+*.tmp
+__pycache__/
+
+# generated / experimental
+encoded.bin
+thermal.jls
+results/*.png
+results/stretched/
+third_party/
+
+# intermediate sweeps (keep only the ones already committed)
+results/*sweep*.csv
+results/*probe*.csv
