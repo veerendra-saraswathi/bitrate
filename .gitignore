@@ -36,3 +36,33 @@ third_party/
 # intermediate sweeps (keep only the ones already committed)
 results/*sweep*.csv
 results/*probe*.csv
+
+# builds
+build/
+build-*/
+_deps/
+
+# generated / temp
+*.bak
+*.tmp
+__pycache__/
+*.o
+*.a
+*.png
+*.jls
+encoded.bin
+reconstructed.raw
+thermal.jls
+
+# experimental data & results
+data/extreme/
+data/defense_rd/
+results/*sweep*.csv
+results/*probe*.csv
+results/stretched/
+results/*.png
+results/*.raw
+
+# private
+*_private/
+third_party/
