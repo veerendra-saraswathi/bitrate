@@ -1,0 +1,9 @@
+image,near,bytes,bpp,mbps_30fps,psnr,max_err,encode_ms,bit_exact
+kaist_thermal_640x512,0,41067,1.0026,9.86,inf,0,3.77,True
+kaist_thermal_640x512,1,22794,0.5565,5.47,50.32,1,2.91,False
+kaist_thermal_640x512,2,14608,0.3566,3.51,46.1,2,2.03,False
+kaist_thermal_640x512,4,8656,0.2113,2.08,40.99,4,1.07,False
+kaist_visible_640x512,0,134009,3.2717,32.16,inf,0,7.44,True
+kaist_visible_640x512,1,80275,1.9598,19.27,49.9,1,10.44,False
+kaist_visible_640x512,2,65116,1.5897,15.63,45.2,2,10.59,False
+kaist_visible_640x512,4,52418,1.2797,12.58,40.17,4,8.02,False
