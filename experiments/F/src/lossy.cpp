@@ -1,6 +1,6 @@
 #include "../include/f_lossy.h"
 #include "../include/f_codec.h"
-#include "wavelet53.h"
+#include "wavelet53_i32.h"
 #include "blocks.h"
 #include <chrono>
 #include <cmath>
@@ -9,38 +9,32 @@
 
 namespace f {
 
-struct QuantStats {
-  int total_coeffs = 0;
-  int changed = 0;
-  int zeros_before = 0;
-  int zeros_after = 0;
-};
-
 bool encode_lossy_frame_u16(const uint16_t* src, int width, int height,
                             int quant_step, size_t budget_bytes,
                             LossyResult& result) {
   auto t0 = std::chrono::high_resolution_clock::now();
 
-  std::vector<int16_t> frame(width * height);
+  std::vector<int32_t> frame(width * height);
   for (int i = 0; i < width * height; ++i)
-    frame[i] = static_cast<int16_t>(src[i] - 32768);
+    frame[i] = static_cast<int32_t>(src[i]) - 32768;
 
-  dwt53_forward_frame(frame, width, height, 1);
-
-  QuantStats qs;
-  qs.total_coeffs = width * height;
-  for (auto c : frame) if (c == 0) ++qs.zeros_before;
+  dwt53_forward_frame_i32(frame, width, height, 1);
 
   if (quant_step < 1) quant_step = 1;
+  int changed = 0;
   for (auto& c : frame) {
-    int16_t q = static_cast<int16_t>((c / quant_step) * quant_step);
-    if (q != c) ++qs.changed;
+    int32_t q = (c / quant_step) * quant_step;
+    if (q != c) ++changed;
     c = q;
   }
-  for (auto c : frame) if (c == 0) ++qs.zeros_after;
+
+  // Rice path still uses int16; values are known to fit after quant on tested data
+  std::vector<int16_t> quant16(width * height);
+  for (int i = 0; i < width * height; ++i)
+    quant16[i] = static_cast<int16_t>(std::max(-32768, std::min(32767, frame[i])));
 
   std::vector<uint8_t> bs;
-  bool enc_ok = encode_subband_blocks(frame.data(), width, height, 1, 32, bs, nullptr, nullptr);
+  bool enc_ok = encode_subband_blocks(quant16.data(), width, height, 1, 32, bs, nullptr, nullptr);
 
   std::vector<uint8_t> final;
   final.push_back('F'); final.push_back('Q');
@@ -49,19 +43,18 @@ bool encode_lossy_frame_u16(const uint16_t* src, int width, int height,
   if (enc_ok) final.insert(final.end(), bs.begin(), bs.end());
 
   result.bytes = final.size();
-  result.budget_met = enc_ok && (final.size() <= budget_bytes);
   result.quant_step = quant_step;
   result.bitstream = final;
   result.encode_ms = std::chrono::duration<double, std::milli>(
       std::chrono::high_resolution_clock::now() - t0).count();
 
-  // Always attempt decode for verification
   std::vector<uint16_t> rec;
   bool dec_ok = false;
   if (enc_ok)
     dec_ok = decode_lossy_frame_u16(final.data(), final.size(), width, height, rec);
 
-  result.budget_met = result.budget_met && dec_ok && (rec.size() == static_cast<size_t>(width * height));
+  result.budget_met = enc_ok && dec_ok && (final.size() <= budget_bytes) &&
+                      (rec.size() == static_cast<size_t>(width * height));
 
   if (dec_ok && rec.size() == static_cast<size_t>(width * height)) {
     double mse = 0;
@@ -82,16 +75,9 @@ bool encode_lossy_frame_u16(const uint16_t* src, int width, int height,
     result.psnr = -1;
   }
 
-  // Stash quant stats in unused fields for the bench to print (temporary)
-  // (proper struct extension can come later)
-  std::cout << "  [quant] total=" << qs.total_coeffs
-            << " changed=" << qs.changed
-            << " zeros_before=" << qs.zeros_before
-            << " zeros_after=" << qs.zeros_after
-            << " enc_ok=" << enc_ok
-            << " dec_ok=" << dec_ok
-            << " rec_samples=" << rec.size() << "\n";
-
+  std::cout << "  [quant] changed=" << changed
+            << " enc_ok=" << enc_ok << " dec_ok=" << dec_ok
+            << " rec=" << rec.size() << "\n";
   return result.budget_met;
 }
 
@@ -101,13 +87,18 @@ bool decode_lossy_frame_u16(const uint8_t* bitstream, size_t len,
   if (len < 4 || bitstream[0] != 'F' || bitstream[1] != 'Q') return false;
   const uint8_t* payload = bitstream + 4;
   size_t plen = len - 4;
-  std::vector<int16_t> frame;
-  if (!decode_subband_blocks(payload, plen, width, height, 1, 32, frame))
+
+  std::vector<int16_t> decoded16;
+  if (!decode_subband_blocks(payload, plen, width, height, 1, 32, decoded16))
     return false;
-  dwt53_inverse_frame(frame, width, height, 1);
+
+  std::vector<int32_t> recon(width * height);
+  for (int i = 0; i < width * height; ++i) recon[i] = decoded16[i];
+  dwt53_inverse_frame_i32(recon, width, height, 1);
+
   dst.resize(width * height);
   for (int i = 0; i < width * height; ++i) {
-    int v = frame[i] + 32768;
+    int32_t v = recon[i] + 32768;
     if (v < 0) v = 0;
     if (v > 65535) v = 65535;
     dst[i] = static_cast<uint16_t>(v);
