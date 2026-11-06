@@ -56,6 +56,10 @@ add_executable(trace_qstep1 tools/trace_qstep1.cpp)
 target_link_libraries(trace_qstep1 PRIVATE f_codec)
 target_include_directories(trace_qstep1 PRIVATE src)
 
+add_executable(zero_probe tools/zero_probe.cpp)
+target_link_libraries(zero_probe PRIVATE f_codec)
+target_include_directories(zero_probe PRIVATE src)
+
 add_executable(bench_lossy_corrected tools/bench_lossy_corrected.cpp)
 target_link_libraries(bench_lossy_corrected PRIVATE f_codec)
 
