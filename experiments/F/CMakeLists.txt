@@ -14,6 +14,7 @@ add_library(f_codec STATIC
   src/wavelet53_i32.cpp
   src/blocks.cpp
   src/rice.cpp
+  src/rice_i32.cpp
   src/rans.cpp
   src/encoder.cpp
   src/decoder.cpp
@@ -50,6 +51,10 @@ target_include_directories(trace_wrapper_i32 PRIVATE src)
 add_executable(trace_wrapper tools/trace_wrapper.cpp)
 target_link_libraries(trace_wrapper PRIVATE f_codec)
 target_include_directories(trace_wrapper PRIVATE src)
+
+add_executable(trace_qstep1 tools/trace_qstep1.cpp)
+target_link_libraries(trace_qstep1 PRIVATE f_codec)
+target_include_directories(trace_qstep1 PRIVATE src)
 
 add_executable(bench_lossy_corrected tools/bench_lossy_corrected.cpp)
 target_link_libraries(bench_lossy_corrected PRIVATE f_codec)
