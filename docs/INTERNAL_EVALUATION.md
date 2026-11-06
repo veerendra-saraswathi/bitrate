@@ -45,8 +45,8 @@ failed mandatory requirement. Unverified claims are not passes.
 - Exclude results from non-round-tripping lossless backends from valid comparisons.
 
 See [COMPARISON_CONTRACT.md](COMPARISON_CONTRACT.md) for the existing internal
-lossless/near-lossless comparison. The approximately 2 Mbps PoC evaluation is a
-separate operating point.
+lossless/near-lossless comparison. The approximately 2 Mbps PoC evaluation is
+a separate operating point.
 
 ## Operating modes
 
@@ -71,8 +71,8 @@ transferred into this register.
 | B | DCT baseline | Pending | Pending | Unverified here | Retain historical results with configuration and hardware attribution |
 | C | Predictive residual baseline; development stopped | Pending | Pending | Unverified here | Retain historical evidence; no new development implied |
 | D | JPEG-LS / CharLS reference | Pending | Pending | Unverified here | Preserve frozen reference; record dependency-policy interpretation |
-| E | bitrate2; multiple coding paths | Pending | Pending | Unverified here | Assess each path separately; target-hardware validation remains open |
-| F | experiments/F; V5-derived Rice baseline and separate lossy experiment | faa4f68; profiles require separate assessment | Pending | Lossy correctness/rate unresolved | User-reported exact KAIST baseline; inspect and verify current source before scoring |
+| E | bitrate2; multiple coding paths (final ewc codec) | Pending | **82 (provisional)** | Jetson unverified | Host evidence strong; assess paths separately; target-hardware validation open |
+| F | experiments/F; V5 + int32 lossy + zero-run | Current | **Deferred** | Rate budget unmet | Exactness closed on tested frames; 2 Mbps budget not met; rate floor documented. Deferred for review. |
 
 For every new scored assessment, append a row below and link the raw evidence.
 Assign integer points from 0 to each category maximum with a written rationale.
@@ -82,8 +82,9 @@ explicitly. Thresholds and partial-credit rules must be frozen before using scor
 for a selection decision.
 
 | Date | Architecture / mode | Commit / dataset / platform | Rate /25 | Quality /20 | Latency /20 | I/O /10 | Stream /10 | Recovery /5 | C++ /5 | Evidence /5 | Total /100 | Gate status / rationale / evidence |
-| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| — | No scored assessment entered | — | — | — | — | — | — | — | — | — | — | — |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 2026-11-07 | E / final ewc codec (host) | bitrate2 | 22 | 18 | 16 | 8 | 8 | 4 | 5 | 1 | **82** | Provisional. Strong host rate/quality/resilience. Jetson and full native-14-bit locked KAIST unverified. |
+| 2026-11-07 | F / lossy (host) | experiments/F | — | — | — | — | — | — | — | — | Deferred | Exactness resolved (qstep=1 bit-exact on tested frames). 8333-byte budget unmet. Rate floor explained. Deferred. |
 
 ## Completion tracking: PoC, MVP and final solution
 
@@ -126,3 +127,9 @@ Deliverable checklist template (copy separately for each stage):
 | Date | Change |
 | --- | --- |
 | 2026-11-07 | Established internal 100-point rubric, architecture register and separate completion method. No historical score or completion estimate adopted as verified. |
+| 2026-11-07 | Added provisional score for E (final ewc codec, 82). Marked F deferred (exactness closed, 2 Mbps budget unmet). |
+
+## Landing-page note
+
+This file is the current internal evaluation landing page for the bitrate repository.
+See also the main [README.md](../README.md).
